@@ -2,17 +2,26 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import * as BooksAPI from "../misc/BooksAPI";
 import Book from "../components/Book";
+import PropTypes from "prop-types";
+import { debounce } from "lodash";
 
 class Search extends Component {
   state = {
+    searchStatus: "idle",
     books: [],
   };
+
+  componentDidMount() {
+    this.updateQuery = debounce(this.updateQuery, 500);
+  }
+
   updateQuery = (query) => {
     const searchQuery = query.trim();
     if (searchQuery) {
+      this.setState({ searchStatus: "searching" });
       BooksAPI.search(searchQuery).then((data) => {
         if (data.error) {
-          this.setState({ books: [] });
+          this.setState({ searchStatus: "fail", books: [] });
         } else {
           data = data.map((book) => {
             const bookInShelf = this.props.books.find(
@@ -21,14 +30,16 @@ class Search extends Component {
             if (bookInShelf) book.shelf = bookInShelf.shelf;
             return book;
           });
-          this.setState({ books: data });
+          this.setState({ searchStatus: "success", books: data });
         }
       });
+    } else {
+      this.setState({ searchStatus: "idle", books: [] });
     }
   };
   render() {
     const { updateBook } = this.props;
-    const { books } = this.state;
+    const { searchStatus, books } = this.state;
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -45,7 +56,9 @@ class Search extends Component {
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
-            {books &&
+            {searchStatus === "searching" && <div>Searching...</div>}
+            {searchStatus === "fail" && <div>Books Not Found</div>}
+            {searchStatus === "success" &&
               books.map((book) => (
                 <Book key={book.id} book={book} updateBook={updateBook} />
               ))}
@@ -55,5 +68,9 @@ class Search extends Component {
     );
   }
 }
+
+Search.propTypes = {
+  updateBook: PropTypes.func.isRequired,
+};
 
 export default Search;

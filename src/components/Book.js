@@ -1,11 +1,11 @@
 import React from "react";
+import imageNotFound from "../images/notfound.jpg";
+import PropTypes from "prop-types";
 
-const Book = (props) => {
-  const { book, updateBook } = props;
-
+const Book = ({ book, updateBook }) => {
   const onShelfChange = (e) => {
     e.preventDefault();
-    updateBook(props.book, e.target.value);
+    updateBook(book, e.target.value);
   };
 
   if (!book.shelf) book.shelf = "none";
@@ -19,7 +19,9 @@ const Book = (props) => {
             style={{
               width: 128,
               height: 193,
-              backgroundImage: `url(${book.imageLinks.thumbnail})`,
+              backgroundImage: `url(${
+                book.imageLinks ? book.imageLinks.thumbnail : imageNotFound
+              })`,
             }}
           />
           <div className="book-shelf-changer">
@@ -43,4 +45,10 @@ const Book = (props) => {
     </li>
   );
 };
+
+Book.propTypes = {
+  book: PropTypes.object.isRequired,
+  updateBook: PropTypes.func.isRequired,
+};
+
 export default Book;

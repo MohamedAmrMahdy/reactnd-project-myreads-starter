@@ -1,8 +1,8 @@
 import React from "react";
 import Book from "./Book";
+import PropTypes from "prop-types";
 
-const BookShelf = (props) => {
-  const { title, books, updateBook } = props;
+const BookShelf = ({ title, books, updateBook }) => {
   return (
     <div className="bookshelf">
       <h2 className="bookshelf-title">{title}</h2>
@@ -15,6 +15,12 @@ const BookShelf = (props) => {
       </div>
     </div>
   );
+};
+
+BookShelf.propTypes = {
+  title: PropTypes.string,
+  books: PropTypes.array.isRequired,
+  updateBook: PropTypes.func.isRequired,
 };
 
 export default BookShelf;
